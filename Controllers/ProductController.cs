@@ -26,10 +26,16 @@ namespace SalesProject.Controllers
         public async Task<List<ProductGetAllResponse>> GetProducts()
         {
 
-            var products = await _context.Product.ToListAsync();
+            var products = await _context.Product
+                .Include(p => p.ActiveCampaign)
+                .ToListAsync();
 
             return products.Select(product =>
             {
+                if (product.ActiveCampaign != null)
+                {
+                    product.Price -= (product.Price * product.ActiveCampaign.DiscountValue) / 100;
+                }
                 return _mapper.Map<ProductGetAllResponse>(product);
             }).ToList();
 
