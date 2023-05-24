@@ -17,7 +17,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<SalesDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
+var allowedOrigin = builder.Configuration.GetSection("AllowedOrigin").Value;
+
 var app = builder.Build();
+
+app.UseCors(options => options
+    .WithOrigins(allowedOrigin)
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -12,7 +12,7 @@ using SalesProject.Context;
 namespace SalesProject.Migrations
 {
     [DbContext(typeof(SalesDbContext))]
-    [Migration("20230522074857_InitialMigration")]
+    [Migration("20230523141440_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,15 +35,19 @@ namespace SalesProject.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProductId")
+                    b.Property<int>("DiscountValue")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Campaign");
                 });
@@ -56,11 +60,17 @@ namespace SalesProject.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ActiveCampaignId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<int?>("DiscountedPrice")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -69,23 +79,26 @@ namespace SalesProject.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Sku")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Product");
-                });
+                    b.HasIndex("ActiveCampaignId");
 
-            modelBuilder.Entity("SalesProject.Entities.Campaign", b =>
-                {
-                    b.HasOne("SalesProject.Entities.Product", null)
-                        .WithMany("Campaigns")
-                        .HasForeignKey("ProductId");
+                    b.HasIndex("Sku")
+                        .IsUnique();
+
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("SalesProject.Entities.Product", b =>
                 {
-                    b.Navigation("Campaigns");
+                    b.HasOne("SalesProject.Entities.Campaign", "ActiveCampaign")
+                        .WithMany()
+                        .HasForeignKey("ActiveCampaignId");
+
+                    b.Navigation("ActiveCampaign");
                 });
 #pragma warning restore 612, 618
         }

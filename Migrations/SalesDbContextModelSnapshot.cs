@@ -67,6 +67,9 @@ namespace SalesProject.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<int?>("DiscountedPrice")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -74,11 +77,15 @@ namespace SalesProject.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Sku")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ActiveCampaignId");
+
+                    b.HasIndex("Sku")
+                        .IsUnique();
 
                     b.ToTable("Product");
                 });

@@ -34,7 +34,7 @@ namespace SalesProject.Controllers
             {
                 if (product.ActiveCampaign != null)
                 {
-                    product.Price -= (product.Price * product.ActiveCampaign.DiscountValue) / 100;
+                    product.DiscountedPrice = product.Price - (product.Price * product.ActiveCampaign.DiscountValue) / 100;
                 }
                 return _mapper.Map<ProductGetAllResponse>(product);
             }).ToList();

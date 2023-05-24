@@ -8,7 +8,7 @@ namespace SalesProject.Models.Product.Request
         public string Name { get; set; }
         public string Description { get; set; }
         public int Price { get; set; }
-        public int CampaignId { get; set; }
+        public int? CampaignId { get; set; }
 
     }
 }
