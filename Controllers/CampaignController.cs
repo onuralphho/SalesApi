@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
 using SalesProject.Entities;
 using SalesProject.Models.Campaign.DTO;
@@ -18,6 +19,17 @@ namespace SalesProject.Controllers
         {
             _mapper = mapper;
             _context = context;
+        }
+
+        [HttpGet]
+        public async Task<List<CampaignDto>> GetCampaigns()
+        {
+            var campaigns = await _context.Campaign.ToListAsync();
+
+            return campaigns.Select(c =>
+            {
+                return _mapper.Map<CampaignDto>(c);
+            }).ToList();
         }
 
         [HttpPost("CreateCampaign")]

@@ -41,6 +41,22 @@ namespace SalesProject.Controllers
 
         }
 
+        [HttpGet]
+        [Route("{sku}")]
+        public async Task<ProductGetAllResponse> GetDetail(string sku)
+        {
+            var product = await _context.Product
+                .Include(p => p.ActiveCampaign)
+                .SingleOrDefaultAsync(x => x.Sku == sku);
+
+            if (product.ActiveCampaign != null)
+            {
+                product.DiscountedPrice = product.Price - (product.Price * product.ActiveCampaign.DiscountValue) / 100;
+
+            }
+            return _mapper.Map<ProductGetAllResponse>(product);
+        }
+
         [HttpPost("AddProduct")]
         public async Task<ProductAddProductResponse> AddProduct(ProductAddRequest reqbody)
         {

@@ -15,6 +15,7 @@ namespace SalesProject.Entities
         public string Name { get; set; }
         public string Description { get; set; } = string.Empty;
         public int Price { get; set; }
+        public int StockCount { get; set; } = 0;
         public int? DiscountedPrice { get; set; }
         public DateTime CreatedTime { get; set; } = DateTime.Now;
         [ForeignKey("ActiveCampaign")]
