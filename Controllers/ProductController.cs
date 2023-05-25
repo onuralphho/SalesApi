@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
 using SalesProject.Entities;
+using SalesProject.Exceptions;
 using SalesProject.Models.Product.Request;
 using SalesProject.Models.Product.Response;
 
@@ -60,15 +61,20 @@ namespace SalesProject.Controllers
         [HttpPost("AddProduct")]
         public async Task<ProductAddProductResponse> AddProduct(ProductAddRequest reqbody)
         {
+            if(reqbody.Name.Length == 0 )
+            {
+                throw new BadRequestException("Name section should not be empty","name_error");
+            }
+
             var newProduct = new Product
             {
-                Sku = reqbody.Sku,
+                Sku = $"{reqbody.Name}{Guid.NewGuid()}",
                 Name = reqbody.Name,
                 Description = reqbody.Description,
                 CreatedTime = DateTime.UtcNow,
                 Price = reqbody.Price,
+                StockCount = reqbody.StockCount,
                 ActiveCampaignId = reqbody.CampaignId
-
             };
 
             _context.Product.Add(newProduct);

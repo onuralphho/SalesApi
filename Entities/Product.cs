@@ -11,9 +11,11 @@ namespace SalesProject.Entities
         [Key]
         public int Id { get; set; }
         [Required]
-        public string Sku { get; set; } 
+        public string Sku { get; set; }
+        [Required]
         public string Name { get; set; }
         public string Description { get; set; } = string.Empty;
+        [Required]
         public int Price { get; set; }
         public int StockCount { get; set; } = 0;
         public int? DiscountedPrice { get; set; }
