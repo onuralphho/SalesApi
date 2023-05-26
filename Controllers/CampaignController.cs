@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
 using SalesProject.Entities;
 using SalesProject.Models.Campaign.DTO;
+using SalesProject.Models.Product.Response;
 
 namespace SalesProject.Controllers
 {
@@ -35,9 +36,10 @@ namespace SalesProject.Controllers
         [HttpPost("CreateCampaign")]
         public async Task<CampaignDto> CreateCampaign(CampaignDto campaign)
         {
-            var newCampaing = new Campaign{
+            var newCampaing = new Campaign
+            {
                 Title = campaign.Title,
-                Description = campaign.Description, 
+                Description = campaign.Description,
                 DiscountValue = campaign.DiscountValue,
                 StartDate = campaign.StartDate,
                 EndDate = campaign.EndDate,
@@ -49,6 +51,43 @@ namespace SalesProject.Controllers
             await _context.SaveChangesAsync();
 
             return _mapper.Map<CampaignDto>(newCampaing);
+
+        }
+
+        [HttpPut]
+        [Route("ResetCampaign/{sku}")]
+        public async Task<ProductGetAllResponse> ResetCampaign(string sku)
+        {
+            var product = await _context.Product
+                 .Include(p => p.ActiveCampaign)
+                 .SingleOrDefaultAsync(x => x.Sku == sku);
+
+            product.ActiveCampaignId = null;
+
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<ProductGetAllResponse>(product);
+
+
+
+        }
+        [HttpPut("ResetCampaign")]
+        public async Task<ProductGetAllResponse> ResetCampaignWithOutDetail(string sku)
+        {
+            var product = await _context.Product
+                 .Include(p => p.ActiveCampaign)
+                 .SingleOrDefaultAsync(x => x.Sku == sku);
+            if (product != null)
+            {
+                product.ActiveCampaignId = null;
+
+                await _context.SaveChangesAsync();
+            }
+
+
+            return _mapper.Map<ProductGetAllResponse>(product);
+
+
 
         }
     }
