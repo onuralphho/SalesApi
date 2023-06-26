@@ -1,2 +1,4 @@
 # Visual Studio profiler
 .vs
+
+appsettings.Development.json
