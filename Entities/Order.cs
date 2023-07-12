@@ -17,6 +17,7 @@ namespace SalesProject.Entities
     {
         [Key]
         public int Id { get; set; }
+        public Guid OrderId { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
