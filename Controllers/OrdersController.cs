@@ -22,7 +22,8 @@ namespace SalesProject.Controllers
 
 
         [HttpGet]
-        public async Task<List<OrderDto>> Get() {
+        public async Task<List<OrderDto>> Get()
+        {
 
             var orders = await _context.Order.Include(o => o.Items).ToListAsync();
 
@@ -32,14 +33,16 @@ namespace SalesProject.Controllers
 
 
 
-        [HttpPost]
+        [HttpPost("AddOrder")]
         public async Task<ActionResult> AddOrder(OrderDto order)
         {
-            var newProducts = new List<CartProduct>(); 
+            var newProducts = new List<CartProduct>();
 
-           
+
             foreach (var item in order.Items)
             {
+                var product = await _context.Product.FirstOrDefaultAsync(x => x.Sku == item.Sku);
+                product.StockCount -= item.Quantity;
                 newProducts.Add(new CartProduct
                 {
                     Name = item.Name,
@@ -52,15 +55,19 @@ namespace SalesProject.Controllers
 
             var newOrder = new Order
             {
+                OrderId = new Guid(order.OrderId),
                 Address = order.Address,
                 PaymentMethod = order.PaymentMethod,
-                Items = newProducts
+                Items = newProducts,
+                Name = "John",//todo: Fix the dummy datas
+                Surname = "Doe",
+                PhoneNumber = "05313781155"
             };
 
             _context.Order.Add(newOrder);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(_mapper.Map<OrderDto>(newOrder));
         }
 
 
