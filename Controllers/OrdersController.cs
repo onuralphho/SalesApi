@@ -21,16 +21,14 @@ namespace SalesProject.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<List<OrderDto>> Get()
+        [HttpGet("GetOrders")]
+        public async Task<List<OrderDto>> GetOrders()
         {
 
             var orders = await _context.Order.Include(o => o.Items).ToListAsync();
 
             return _mapper.Map<List<OrderDto>>(orders);
         }
-
-
 
 
         [HttpPost("AddOrder")]
