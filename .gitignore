@@ -1,4 +1,6 @@
 # Visual Studio profiler
 .vs
+**/bin/*
+**/obj/*
 
 appsettings.Development.json

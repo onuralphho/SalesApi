@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
 using SalesProject.Entities;
+using System.Linq;
 using SalesProject.Models.Cart;
 
 namespace SalesProject.Controllers
@@ -24,12 +25,29 @@ namespace SalesProject.Controllers
         [HttpGet("GetOrders")]
         public async Task<List<OrderDto>> GetOrders()
         {
+            var orders = _mapper.Map<List<OrderDto>>(await _context.Order.Include(x => x.Items).ToListAsync());
 
-            var orders = await _context.Order.Include(o => o.Items).ToListAsync();
+            foreach (var order in orders)
+            {
+                var products = new List<OrderProductDto>();
+                foreach (var item in order.Items)
+                {
+                    var product = await _context.Product.FirstOrDefaultAsync(p => p.Sku == item.Sku);
+                    var productObj = new OrderProductDto
+                    {
+                        Name = product.Name,
+                        Price = product.Price,
+                        Quantity = item.Quantity,
+                        Sku = item.Sku,
+                    };
+                    products.Add(productObj);
+                }
+                order.Items = products;
+                
+            }
 
-            return _mapper.Map<List<OrderDto>>(orders);
+            return  orders;
         }
-
 
         [HttpPost("AddOrder")]
         public async Task<ActionResult> AddOrder(OrderDto order)
@@ -43,17 +61,14 @@ namespace SalesProject.Controllers
                 product.StockCount -= item.Quantity;
                 newProducts.Add(new CartProduct
                 {
-                    Name = item.Name,
-                    Price = item.Price,
                     Quantity = item.Quantity,
                     Sku = item.Sku,
-                    TotalPrice = item.TotalPrice
                 });
             }
 
             var newOrder = new Order
             {
-                OrderId = new Guid(order.OrderId),
+                OrderId = new Guid(),
                 Address = order.Address,
                 PaymentMethod = order.PaymentMethod,
                 Items = newProducts,

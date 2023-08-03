@@ -16,6 +16,7 @@ namespace SalesProject
             CreateMap<Campaign, CampaignDto>().ReverseMap();
             CreateMap<Order, OrderDto>().ReverseMap();
             CreateMap<CartProduct, OrderProductDto>().ReverseMap();
+            CreateMap<Product, OrderProductDto>().ReverseMap();
         }
     }
 }
