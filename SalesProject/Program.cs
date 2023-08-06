@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SalesProject;
 using SalesProject.Application.Services;
 using SalesProject.Context;
+using SalesProject.Core.Interfaces.RepositoryInterfaces;
 using SalesProject.Core.Interfaces.RepostoryInterfaces;
 using SalesProject.Core.Interfaces.ServiceInterfaces;
 using SalesProject.Domain.Repositories;
@@ -24,10 +25,12 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 #region Services DI
 builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 #endregion
 
 #region Repostories DI
 builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 #endregion
 
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
+using SalesProject.Core.Interfaces.ServiceInterfaces;
 using SalesProject.Entities;
 using SalesProject.Exceptions;
 using SalesProject.Models.Product.Request;
@@ -14,31 +15,28 @@ namespace SalesProject.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly SalesDbContext _context;
-        private readonly IMapper _mapper;
 
-        public ProductController(SalesDbContext salesDbContext, IMapper mapper)
+        private readonly IProductService _productService;
+
+        public ProductController(IProductService productService)
         {
-            _context = salesDbContext;
-            _mapper = mapper;
+            _productService = productService;
         }
 
         [HttpGet]
         public async Task<List<ProductGetAllResponse>> GetProducts()
         {
+            var response = await _productService.GetProducts();
 
-            var products = await _context.Product
-                .Include(p => p.ActiveCampaign)
-                .ToListAsync();
-
-            return products.Select(product =>
+            if (response != null)
             {
-                if (product.ActiveCampaign != null)
-                {
-                    product.DiscountedPrice = product.Price - (product.Price * product.ActiveCampaign.DiscountValue) / 100;
-                }
-                return _mapper.Map<ProductGetAllResponse>(product);
-            }).ToList();
+                return response;
+            }
+            else
+            {
+                return null; //Create new Response Object
+            }
+
 
         }
 
@@ -46,46 +44,26 @@ namespace SalesProject.Controllers
         [Route("{sku}")]
         public async Task<ProductGetAllResponse> GetDetail(string sku)
         {
-            var product = await _context.Product
-                .Include(p => p.ActiveCampaign)
-                .SingleOrDefaultAsync(x => x.Sku == sku);
-
-            if (product.ActiveCampaign != null)
+            var response = await _productService.GetDetail(sku);
+            if (response != null)
             {
-                product.DiscountedPrice = product.Price - (product.Price * product.ActiveCampaign.DiscountValue) / 100;
-
+                return response;
             }
-            return _mapper.Map<ProductGetAllResponse>(product);
+            else
+            {
+                return null;
+            }
         }
 
         [HttpPost("AddProduct")]
         public async Task<ProductAddProductResponse> AddProduct(ProductAddRequest reqbody)
         {
-            if(reqbody.Name.Length == 0 )
+            var response = await _productService.AddProduct(reqbody);
+            if (response != null)
             {
-                throw new BadRequestException("Name section should not be empty","name_error");
+                return response;
             }
-
-            var newProduct = new Product
-            {
-                Sku = $"{reqbody.Name}{Guid.NewGuid()}",
-                Name = reqbody.Name,
-                Description = reqbody.Description,
-                CreatedTime = DateTime.UtcNow,
-                Price = reqbody.Price,
-                StockCount = reqbody.StockCount,
-                ActiveCampaignId = reqbody.CampaignId
-            };
-
-            _context.Product.Add(newProduct);
-
-            await _context.SaveChangesAsync();
-
-            newProduct = await _context.Product
-                .Include(p => p.ActiveCampaign)
-                .SingleOrDefaultAsync(p => p.Id == newProduct.Id);
-
-            return _mapper.Map<ProductAddProductResponse>(newProduct);
+            else { return null; }
         }
     }
 }
