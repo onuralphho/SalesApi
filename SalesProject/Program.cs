@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SalesProject;
+using SalesProject.Application.Services;
 using SalesProject.Context;
+using SalesProject.Core.Interfaces.ServiceInterfaces;
 using SalesProject.Filters;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<SalesDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ErrorHandlingFilter>();

@@ -6,6 +6,7 @@ using SalesProject.Entities;
 using System.Linq;
 using SalesProject.Models.Cart;
 using SalesProject.Models.Product.Response;
+using SalesProject.Core.Interfaces.ServiceInterfaces;
 
 namespace SalesProject.Controllers
 {
@@ -15,45 +16,30 @@ namespace SalesProject.Controllers
     {
         private readonly SalesDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IOrdersService _orderService;
 
-        public OrdersController(IMapper mapper, SalesDbContext context)
+        public OrdersController(IMapper mapper, SalesDbContext context, IOrdersService orderService)
         {
             _mapper = mapper;
             _context = context;
+            _orderService = orderService;
         }
 
 
         [HttpGet("GetOrders")]
         public async Task<List<OrderDto>> GetOrders()
         {
-            var orders = _mapper.Map<List<OrderDto>>(await _context.Order.Include(x => x.Items).ToListAsync());
-            var products = _mapper.Map<List<OrderProductDto>>(await _context.Product.ToListAsync());
+            var response = await _orderService.GetOrders();
 
-            foreach (var order in orders)
+            if(response != null)
             {
-                var orderProducts = new List<OrderProductDto>();
-
-                foreach (var item in order.Items)
-                {
-                    var product = products.Find(p => p.Sku == item.Sku);
-
-                    if (product != null)
-                    {
-                        var productObj = new OrderProductDto
-                        {
-                            Name = product.Name,
-                            Price = product.Price,
-                            Quantity = item.Quantity,
-                            Sku = item.Sku,
-                        };
-                        orderProducts.Add(productObj);
-                    }
-                }
-
-                order.Items = orderProducts;
+                return response;
+            }
+            else
+            {
+                return null; //TODO: Create a new response object that carry messages!!
             }
 
-            return orders;
         }
 
         [HttpPost("AddOrder")]
