@@ -14,14 +14,10 @@ namespace SalesProject.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly SalesDbContext _context;
-        private readonly IMapper _mapper;
         private readonly IOrdersService _orderService;
 
-        public OrdersController(IMapper mapper, SalesDbContext context, IOrdersService orderService)
+        public OrdersController(IOrdersService orderService)
         {
-            _mapper = mapper;
-            _context = context;
             _orderService = orderService;
         }
 
@@ -37,7 +33,7 @@ namespace SalesProject.Controllers
             }
             else
             {
-                return null; //TODO: Create a new response object that carry messages!!
+                return null; //TODO: Create a new response object that carries error message!!
             }
 
         }
@@ -45,37 +41,17 @@ namespace SalesProject.Controllers
         [HttpPost("AddOrder")]
         public async Task<ActionResult> AddOrder(OrderDto order)
         {
-            var newProducts = new List<CartProduct>();
+            var response = await _orderService.AddOrder(order);
 
-
-            foreach (var item in order.Items)
+            if(response != null)
             {
-                var product = await _context.Product.FirstOrDefaultAsync(x => x.Sku == item.Sku);
-                product.StockCount -= item.Quantity;
-                newProducts.Add(new CartProduct
-                {
-                    Quantity = item.Quantity,
-                    Sku = item.Sku,
-                });
+                return Ok(response);
             }
-
-            var newOrder = new Order
+            else
             {
-                OrderId = new Guid(),
-                Address = order.Address,
-                PaymentMethod = order.PaymentMethod,
-                Items = newProducts,
-                Name = "John",//todo: Fix the dummy datas
-                Surname = "Doe",
-                PhoneNumber = "05313781155"
-            };
-
-            _context.Order.Add(newOrder);
-            await _context.SaveChangesAsync();
-
-            return Ok(_mapper.Map<OrderDto>(newOrder));
+                return BadRequest();
+            }
         }
-
 
     }
 }

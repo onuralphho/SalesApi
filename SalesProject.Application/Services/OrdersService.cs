@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
+using SalesProject.Core.Interfaces.RepostoryInterfaces;
 using SalesProject.Core.Interfaces.ServiceInterfaces;
+using SalesProject.Entities;
 using SalesProject.Models.Cart;
 using System;
 using System.Collections.Generic;
@@ -15,16 +17,19 @@ namespace SalesProject.Application.Services
     {
         private readonly SalesDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IOrdersRepository _orderRepository;
 
-        public OrdersService(IMapper mapper, SalesDbContext context)
+        public OrdersService(IMapper mapper, SalesDbContext context, IOrdersRepository orderRepository)
         {
             _mapper = mapper;
             _context = context;
+            _orderRepository = orderRepository;
         }
 
         public async Task<List<OrderDto>> GetOrders()
         {
-            var orders = _mapper.Map<List<OrderDto>>(await _context.Order.Include(x => x.Items).ToListAsync());
+
+            var orders = _mapper.Map<List<OrderDto>>(await _orderRepository.GetAllOrdersWithItemsAsync());
             var products = _mapper.Map<List<OrderProductDto>>(await _context.Product.ToListAsync());
 
             foreach (var order in orders)
@@ -52,6 +57,37 @@ namespace SalesProject.Application.Services
             }
 
             return orders;
+        }
+
+        public async Task<OrderDto> AddOrder(OrderDto orderRequest)
+        {
+            var newProducts = new List<CartProduct>();
+
+
+            foreach (var item in orderRequest.Items)
+            {
+                var product = await _context.Product.FirstOrDefaultAsync(x => x.Sku == item.Sku);
+                product.StockCount -= item.Quantity;
+                newProducts.Add(new CartProduct
+                {
+                    Quantity = item.Quantity,
+                    Sku = item.Sku,
+                });
+            }
+
+            var newOrder = new Order
+            {
+                OrderId = new Guid(),
+                Address = orderRequest.Address,
+                PaymentMethod = orderRequest.PaymentMethod,
+                Items = newProducts,
+                Name = "John",//todo: Fix the dummy datas
+                Surname = "Doe",
+                PhoneNumber = "05313781155"
+            };
+
+
+            return _mapper.Map<OrderDto>(await _orderRepository.AddOrderAsync(newOrder));
         }
     }
 }

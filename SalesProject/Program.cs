@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using SalesProject;
 using SalesProject.Application.Services;
 using SalesProject.Context;
+using SalesProject.Core.Interfaces.RepostoryInterfaces;
 using SalesProject.Core.Interfaces.ServiceInterfaces;
+using SalesProject.Domain.Repositories;
 using SalesProject.Filters;
 
 
@@ -19,7 +21,17 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<SalesDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+
+#region Services DI
 builder.Services.AddScoped<IOrdersService, OrdersService>();
+#endregion
+
+#region Repostories DI
+builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
+#endregion
+
+
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ErrorHandlingFilter>();
