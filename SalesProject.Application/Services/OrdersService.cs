@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
+using SalesProject.Core.Interfaces.RepositoryInterfaces;
 using SalesProject.Core.Interfaces.RepostoryInterfaces;
 using SalesProject.Core.Interfaces.ServiceInterfaces;
 using SalesProject.Entities;
@@ -15,22 +16,23 @@ namespace SalesProject.Application.Services
 {
     public class OrdersService : IOrdersService
     {
-        private readonly SalesDbContext _context;
+       
         private readonly IMapper _mapper;
         private readonly IOrdersRepository _orderRepository;
+        private readonly IProductRepository _productRepository;
 
-        public OrdersService(IMapper mapper, SalesDbContext context, IOrdersRepository orderRepository)
+        public OrdersService(IMapper mapper,IOrdersRepository orderRepository, IProductRepository productRepository)
         {
             _mapper = mapper;
-            _context = context;
             _orderRepository = orderRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<List<OrderDto>> GetOrders()
         {
 
             var orders = _mapper.Map<List<OrderDto>>(await _orderRepository.GetAllOrdersWithItemsAsync());
-            var products = _mapper.Map<List<OrderProductDto>>(await _context.Product.ToListAsync());
+            var products = _mapper.Map<List<OrderProductDto>>(await _productRepository.GetAllProductsWithCampaignAsync());
 
             foreach (var order in orders)
             {
@@ -66,7 +68,7 @@ namespace SalesProject.Application.Services
 
             foreach (var item in orderRequest.Items)
             {
-                var product = await _context.Product.FirstOrDefaultAsync(x => x.Sku == item.Sku);
+                var product = await _productRepository.GetProductDetailsAsync(item.Sku);
                 product.StockCount -= item.Quantity;
                 newProducts.Add(new CartProduct
                 {

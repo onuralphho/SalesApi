@@ -44,5 +44,18 @@ namespace SalesProject.Domain.Repositories
                 .Include(p => p.ActiveCampaign)
                 .SingleOrDefaultAsync(p => p.Id == product.Id);
         }
+
+        public async Task<Product> ResetProductCampaignAsync(string sku)
+        {
+            var product = await _context.Product
+                 .Include(p => p.ActiveCampaign)
+                 .SingleOrDefaultAsync(x => x.Sku == sku);
+
+            product.ActiveCampaignId = null;
+
+            await _context.SaveChangesAsync();
+
+            return product;
+        }
     }
 }

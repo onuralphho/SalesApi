@@ -7,5 +7,6 @@ namespace SalesProject.Core.Interfaces.RepositoryInterfaces
         Task<List<Product>> GetAllProductsWithCampaignAsync();
         Task<Product> GetProductDetailsAsync(string sku);
         Task<Product> AddProductAsync(Product product);
+        Task<Product> ResetProductCampaignAsync(string sku);
     }
 }

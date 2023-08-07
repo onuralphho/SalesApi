@@ -26,11 +26,13 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 #region Services DI
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICampaignService, CampaignService>();
 #endregion
 
 #region Repostories DI
 builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
 #endregion
 
 

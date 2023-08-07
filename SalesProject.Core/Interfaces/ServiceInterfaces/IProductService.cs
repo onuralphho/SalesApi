@@ -13,5 +13,6 @@ namespace SalesProject.Core.Interfaces.ServiceInterfaces
         Task<List<ProductGetAllResponse>> GetProducts();
         Task<ProductGetAllResponse> GetDetail(string sku);
         Task<ProductAddProductResponse> AddProduct(ProductAddRequest reqbody);
+        Task<ProductGetAllResponse> ResetProductCampaign(string sku);
     }
 }

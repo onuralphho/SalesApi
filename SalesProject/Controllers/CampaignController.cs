@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
+using SalesProject.Core.Interfaces.ServiceInterfaces;
 using SalesProject.Entities;
 using SalesProject.Models.Campaign.DTO;
 using SalesProject.Models.Product.Response;
@@ -13,82 +14,39 @@ namespace SalesProject.Controllers
     [ApiController]
     public class CampaignController : ControllerBase
     {
-        private readonly SalesDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly ICampaignService _campaignService;
 
-        public CampaignController(IMapper mapper, SalesDbContext context)
+        public CampaignController(ICampaignService campaignService)
         {
-            _mapper = mapper;
-            _context = context;
+            _campaignService = campaignService;
         }
 
         [HttpGet]
         public async Task<List<CampaignDto>> GetCampaigns()
         {
-            var campaigns = await _context.Campaign.ToListAsync();
-
-            return campaigns.Select(c =>
+            var response = await _campaignService.GetCampaigns();
+            if (response != null)
             {
-                return _mapper.Map<CampaignDto>(c);
-            }).ToList();
+                return response;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         [HttpPost("CreateCampaign")]
         public async Task<CampaignDto> CreateCampaign(CampaignDto campaign)
         {
-            var newCampaing = new Campaign
+            var response = await _campaignService.CreateCampaign(campaign);
+            if (response != null)
             {
-                Title = campaign.Title,
-                Description = campaign.Description,
-                DiscountValue = campaign.DiscountValue,
-                StartDate = campaign.StartDate,
-                EndDate = campaign.EndDate,
-
-            };
-
-            _context.Campaign.Add(newCampaing);
-
-            await _context.SaveChangesAsync();
-
-            return _mapper.Map<CampaignDto>(newCampaing);
-
-        }
-
-        [HttpPut]
-        [Route("ResetCampaign/{sku}")]
-        public async Task<ProductGetAllResponse> ResetCampaign(string sku)
-        {
-            var product = await _context.Product
-                 .Include(p => p.ActiveCampaign)
-                 .SingleOrDefaultAsync(x => x.Sku == sku);
-
-            product.ActiveCampaignId = null;
-
-            await _context.SaveChangesAsync();
-
-            return _mapper.Map<ProductGetAllResponse>(product);
-
-
-
-        }
-        [HttpPut("ResetCampaign")]
-        public async Task<ProductGetAllResponse> ResetCampaignWithOutDetail(string sku)
-        {
-            var product = await _context.Product
-                 .Include(p => p.ActiveCampaign)
-                 .SingleOrDefaultAsync(x => x.Sku == sku);
-            if (product != null)
-            {
-                product.ActiveCampaignId = null;
-
-                await _context.SaveChangesAsync();
+                return response;
             }
-
-
-            return _mapper.Map<ProductGetAllResponse>(product);
-
-
+            else { return null; }
 
         }
+
+        
     }
 }

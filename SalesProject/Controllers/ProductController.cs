@@ -36,8 +36,6 @@ namespace SalesProject.Controllers
             {
                 return null; //Create new Response Object
             }
-
-
         }
 
         [HttpGet]
@@ -63,7 +61,26 @@ namespace SalesProject.Controllers
             {
                 return response;
             }
-            else { return null; }
+            else
+            {
+                return null;
+            }
+        }
+
+        [HttpPut]
+        [Route("ResetProductCampaign/{sku}")]
+        public async Task<ProductGetAllResponse> ResetProductCampaign(string sku)
+        {
+            var response = await _productService.ResetProductCampaign(sku);
+
+            if (response != null)
+            {
+                return response;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

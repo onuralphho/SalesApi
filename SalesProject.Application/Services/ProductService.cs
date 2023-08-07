@@ -73,5 +73,12 @@ namespace SalesProject.Application.Services
 
             return _mapper.Map<ProductAddProductResponse>(newProduct);
         }
+
+        public async Task<ProductGetAllResponse> ResetProductCampaign(string sku)
+        {
+            var product = await _productRepository.ResetProductCampaignAsync(sku);
+
+            return _mapper.Map<ProductGetAllResponse>(product);
+        }
     }
 }
