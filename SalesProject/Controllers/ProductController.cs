@@ -49,7 +49,7 @@ namespace SalesProject.Controllers
             }
             else
             {
-                return null;
+                throw new BadRequestException("Something went wrong when getting product detail");
             }
         }
 
@@ -63,7 +63,7 @@ namespace SalesProject.Controllers
             }
             else
             {
-                return null;
+                throw new BadRequestException("Something went wrong when adding new product");
             }
         }
 
@@ -79,7 +79,7 @@ namespace SalesProject.Controllers
             }
             else
             {
-                return null;
+                 throw new BadRequestException("Something went wrong when Reseting campaign");
             }
         }
     }

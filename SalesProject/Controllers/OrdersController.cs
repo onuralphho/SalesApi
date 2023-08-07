@@ -7,6 +7,7 @@ using System.Linq;
 using SalesProject.Models.Cart;
 using SalesProject.Models.Product.Response;
 using SalesProject.Core.Interfaces.ServiceInterfaces;
+using SalesProject.Exceptions;
 
 namespace SalesProject.Controllers
 {
@@ -27,15 +28,14 @@ namespace SalesProject.Controllers
         {
             var response = await _orderService.GetOrders();
 
-            if(response != null)
+            if (response != null)
             {
                 return response;
             }
             else
             {
-                return null; //TODO: Create a new response object that carries error message!!
+                throw new BadRequestException("Orders couldn't get try again");
             }
-
         }
 
         [HttpPost("AddOrder")]
@@ -43,13 +43,13 @@ namespace SalesProject.Controllers
         {
             var response = await _orderService.AddOrder(order);
 
-            if(response != null)
+            if (response != null)
             {
                 return Ok(response);
             }
             else
             {
-                return BadRequest();
+                throw new BadRequestException("Something went wrong when adding order");
             }
         }
 

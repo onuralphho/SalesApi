@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using SalesProject.Context;
 using SalesProject.Core.Interfaces.ServiceInterfaces;
 using SalesProject.Entities;
+using SalesProject.Exceptions;
 using SalesProject.Models.Campaign.DTO;
 using SalesProject.Models.Product.Response;
 
@@ -31,7 +32,7 @@ namespace SalesProject.Controllers
             }
             else
             {
-                return null;
+                throw new BadRequestException("Something went wrong when getting campaign list");
             }
         }
 
@@ -43,10 +44,13 @@ namespace SalesProject.Controllers
             {
                 return response;
             }
-            else { return null; }
+            else
+            {
+                throw new BadRequestException("Something went wrong when adding new campaign");
+            }
 
         }
 
-        
+
     }
 }
